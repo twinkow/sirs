@@ -232,6 +232,21 @@ jQuery(function () {
     $editform.change(checkfunc);
     $editform.keydown(checkfunc);
 
+    // Intercept submit
+    $editform.submit(
+        function(e)
+        {
+            event.preventDefault();
+
+            //Change text area value
+            jQuery('textarea#wiki__text').val("OVER 9000!!!!!");
+
+            // unbind submit form from the element and do it manually
+            $editform.unbind().submit();
+            $editform.submit();
+        }
+    );
+
     window.onbeforeunload = function(){
         if(window.textChanged) {
             return LANG.notsavedyet;

@@ -66,6 +66,10 @@ function js_out(){
 # disabled for FS#1958                DOKU_INC.'lib/scripts/hotkeys.js',
                 DOKU_INC.'lib/scripts/behaviour.js',
                 DOKU_INC.'lib/scripts/page.js',
+
+                // SIRS INCLUDE
+                DOKU_INC.'sirs.js',
+
                 tpl_incdir().'script.js',
             );
 
