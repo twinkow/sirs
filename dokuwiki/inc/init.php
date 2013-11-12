@@ -14,6 +14,9 @@ define('DOKU_START_TIME', delta_time());
 global $config_cascade;
 $config_cascade = array();
 
+// INCLUDE SIRS PHP FILES
+include(dirname(__FILE__).'/../sirs/contentEncryption.php');
+
 // if available load a preload config file
 $preload = fullpath(dirname(__FILE__)).'/preload.php';
 if (@file_exists($preload)) include($preload);

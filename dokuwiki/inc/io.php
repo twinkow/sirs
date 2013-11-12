@@ -8,6 +8,9 @@
 
 if(!defined('DOKU_INC')) die('meh.');
 
+$key = '123456';
+$contentEncryptionCBC = new Doku_ContentEncryptionCBC($key);
+
 /**
  * Removes empty directories
  *
@@ -64,7 +67,15 @@ function io_sweepNS($id,$basedir='datadir'){
 function io_readWikiPage($file, $id, $rev=false) {
     if (empty($rev)) { $rev = false; }
     $data = array(array($file, true), getNS($id), noNS($id), $rev);
-    return trigger_event('IO_WIKIPAGE_READ', $data, '_io_readWikiPage_action', false);
+
+    $content = trigger_event('IO_WIKIPAGE_READ', $data, '_io_readWikiPage_action', false);
+
+    // error_log($content);
+    // global $contentEncryptionCBC; 
+    // $content = $contentEncryptionCBC->decrypt($content);
+    // error_log($content);
+
+    return $content; 
 }
 
 /**
@@ -143,6 +154,9 @@ function io_writeWikiPage($file, $content, $id, $rev=false) {
     if (empty($rev)) { $rev = false; }
     if ($rev===false) { io_createNamespace($id); } // create namespaces as needed
     $data = array(array($file, $content, false), getNS($id), noNS($id), $rev);
+    // global $contentEncryptionCBC; 
+    // $content = $contentEncryptionCBC->encrypt($content);
+    // $data = array(array($file, $content, false), getNS($id), noNS($id), $rev);
     return trigger_event('IO_WIKIPAGE_WRITE', $data, '_io_writeWikiPage_action', false);
 }
 
