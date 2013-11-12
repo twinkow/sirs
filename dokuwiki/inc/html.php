@@ -1520,6 +1520,13 @@ function html_edit(){
         <div id="draft__status"><?php if(!empty($INFO['draft'])) echo $lang['draftdate'].' '.dformat();?></div>
         <div id="tool__bar"><?php if ($wr && $data['media_manager']){?><a href="<?php echo DOKU_BASE?>lib/exe/mediamanager.php?ns=<?php echo $INFO['namespace']?>"
             target="_blank"><?php echo $lang['mediaselect'] ?></a><?php }?></div>
+
+        <!-- SIRS -->
+        <button id="digsig__toolbar" class="toolbutton" title="Attach Digital Signature [D]" accesskey="d" style="position:relative;left:403px">
+            <img src="/lib/images/toolbar/digsig.png" alt="" width="16" height="16">
+        </button>
+        <!-- SIRS -->
+
     </div>
     <?php
 

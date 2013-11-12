@@ -68,7 +68,7 @@ function js_out(){
                 DOKU_INC.'lib/scripts/page.js',
 
                 // SIRS INCLUDE
-                DOKU_INC.'sirs.js',
+                // DOKU_INC.'lib/scripts/jsencrypt.js',
 
                 tpl_incdir().'script.js',
             );

@@ -238,8 +238,8 @@ jQuery(function () {
         {
             event.preventDefault();
 
-            //Change text area value
-            jQuery('textarea#wiki__text').val("OVER 9000!!!!!");
+            // change submit data
+
 
             // unbind submit form from the element and do it manually
             $editform.unbind().submit();
