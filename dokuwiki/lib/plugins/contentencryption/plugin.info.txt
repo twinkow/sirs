@@ -1,7 +1,0 @@
-base   contentencryption
-author Alex
-email  alexcp.almeida@gmail.com
-date   2013-11-13
-name   contentencryption plugin
-desc   Text Content Encryption
-url    http://www.tiago.com/gpi
