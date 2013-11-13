@@ -232,21 +232,6 @@ jQuery(function () {
     $editform.change(checkfunc);
     $editform.keydown(checkfunc);
 
-    // Intercept submit
-    $editform.submit(
-        function(e)
-        {
-            event.preventDefault();
-
-            // change submit data
-
-
-            // unbind submit form from the element and do it manually
-            $editform.unbind().submit();
-            $editform.submit();
-        }
-    );
-
     window.onbeforeunload = function(){
         if(window.textChanged) {
             return LANG.notsavedyet;
