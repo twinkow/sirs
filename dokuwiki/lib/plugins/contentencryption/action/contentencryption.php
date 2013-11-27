@@ -36,8 +36,7 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
 
         error_log("HANDLE IO WIKI WRITE");
         if(($event->data[2] == 'welcome') || ($event->data[2] == 'syntax') ||
-            ($event->data[2] == 'dokuwiki') || ($event->data[2] == 'playground') ||
-            ($event->data[2] == 'preview') || ($event->data[2] == 'sitemap'))
+            ($event->data[2] == 'dokuwiki') || ($event->data[2] == 'playground'))
             return;
 
         $var = ContentEncryptionCBC::encrypt($event->data[0][1], '123456');
@@ -55,11 +54,11 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
 
     public function handle_io_wikipage_read(Doku_Event &$event, $param) {
 
-        error_log("HANDLE IO WIKI READ");        
-
+        error_log("HANDLE IO WIKI READ");      
+        $lang = strstr($event->data[0][0], "/lang/");
         if(($event->data[2] == 'welcome') || ($event->data[2] == 'syntax') ||
-            ($event->data[2] == 'dokuwiki') || ($event->data[2] == 'playground') ||
-            ($event->data[2] == 'preview') || ($event->data[2] == 'sitemap'))
+            ($event->data[2] == 'dokuwiki') || ($event->data[2] == 'playground') || 
+            !empty($lang))
             return;
         
         $var = ContentEncryptionCBC::decrypt($event->result, '123456');

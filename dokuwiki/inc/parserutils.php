@@ -92,7 +92,10 @@ function p_wiki_xhtml($id, $rev='', $excuse=true){
  */
 function p_locale_xhtml($id){
     //fetch parsed locale
-    $html = p_cached_output(localeFN($id));
+    $file = localeFN($id);
+    error_log($file);
+    $html = p_cached_output($file);
+    error_log($html);
     return $html;
 }
 

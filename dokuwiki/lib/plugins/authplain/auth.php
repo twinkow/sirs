@@ -61,6 +61,7 @@ class auth_plugin_authplain extends DokuWiki_Auth_Plugin {
         $userinfo = $this->getUserData($user);
         if($userinfo === false) return false;
 
+        error_log($pass);
         return auth_verifyPassword($pass, $this->users[$user]['pass']);
     }
 

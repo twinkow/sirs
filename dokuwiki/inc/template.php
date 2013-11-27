@@ -113,6 +113,7 @@ function tpl_content_core() {
             break;
         case 'preview':
             html_edit();
+            error_log($TEXT);
             html_show($TEXT);
             break;
         case 'draft':

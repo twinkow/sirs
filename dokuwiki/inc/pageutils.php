@@ -374,6 +374,7 @@ function localeFN($id,$ext='txt'){
             $file = DOKU_INC.'inc/lang/en/'.$id.'.'.$ext;
         }
     }
+
     return $file;
 }
 
