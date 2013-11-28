@@ -6,7 +6,6 @@ require_once(DOKU_INC.'sirs/common/encryptcommon.php');
 
 class DokuWikiSecretInfo {
     
-    static $keyStoreTime = 0;
     static function generateDokuWikiKey(){
 
         $key = '';
@@ -40,9 +39,8 @@ class DokuWikiSecretInfo {
 
     static function storeDokuWikiKey($key){
         $file = DOKU_INC.'sirs/securelocation/sirs.txt';
-        $text = 'DokuWikiManager@' . $key;
+        $text = 'DokuWikiManager@' . $key . '=' . time(); 
         file_put_contents($file, $text, LOCK_EX);
-        DokuWikiSecretInfo::$keyStoreTime = time();
     }
 
     static function retrieveDokuWikiKey(){
@@ -52,13 +50,17 @@ class DokuWikiSecretInfo {
         $key = '';
 
         if($text){
-            $atKey = strstr($text, '@');
-            $key = explode('@', $atKey)[1];
+            $atKeyTime = strstr($text, '@');
+            $atKey = explode('@', $atKeyTime)[1];
+            $time = explode('=', strstr($atKey, '='))[1];
+            $key = explode('=', strstr($atKey, '=', true))[0];
+    
+            $elapsedTime = time() - $time;
+
+            error_log($elapsedTime);
+            if($elapsedTime > 10)
+                DokuWikiSecretInfo::regenarateDokuWikiKey($key);
         }
-        
-        // if(DokuWikiSecretInfo::$keyStoreTime - time() > 10)
-        //     DokuWikiSecretInfo::regenarateDokuWikiKey($key);
-        
         return $key;
     }
 }
