@@ -40,3 +40,24 @@
 1385649192	127.0.0.1	E	start	alex		
 1385649663	127.0.0.1	E	start	alex		
 1385649704	127.0.0.1	E	start	alex		
+1385657330	127.0.0.1	E	playground:playground	fireman		
+1385657342	127.0.0.1	E	playground:playground	fireman		
+1385657347	127.0.0.1	C	playground:ola	fireman	created	
+1385657402	127.0.0.1	E	playground:ola	fireman		
+1385657407	127.0.0.1	C	ola:start	fireman	created	
+1385662015	127.0.0.1	C	start	fireman	created	
+1385662064	127.0.0.1	C	ola:start	fireman	created	
+1385662100	127.0.0.1	E	start	fireman		
+1385662122	127.0.0.1	E	start		external edit	
+1385662207	127.0.0.1	E	start	fireman		
+1385662269	127.0.0.1	E	start		external edit	
+1385662269	127.0.0.1	E	start	fireman		
+1385662282	127.0.0.1	E	start	fireman		
+1385662286	127.0.0.1	E	start	fireman		
+1385662269	127.0.0.1	E	ola:start		external edit	
+1385662291	127.0.0.1	E	ola:start	fireman		
+1385662504	127.0.0.1	E	ola:start		external edit	
+1385662513	127.0.0.1	E	ola:start	fireman		
+1385662536	127.0.0.1	E	ola:start	fireman		
+1385662566	127.0.0.1	E	ola:start	fireman		
+1385662596	127.0.0.1	E	ola:start	fireman		

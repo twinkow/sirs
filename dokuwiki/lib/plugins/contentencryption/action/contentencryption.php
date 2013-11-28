@@ -36,7 +36,6 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
 
     public function handle_io_wikipage_write(Doku_Event &$event, $param) {
 
-        error_log("HANDLE IO WIKI WRITE");
         if(($event->data[2] == 'welcome') || ($event->data[2] == 'syntax') ||
             ($event->data[2] == 'dokuwiki') || ($event->data[2] == 'playground'))
             return;
@@ -57,7 +56,6 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
 
     public function handle_io_wikipage_read(Doku_Event &$event, $param) {
 
-        error_log("HANDLE IO WIKI READ");      
         $lang = strstr($event->data[0][0], "/lang/");
         if(($event->data[2] == 'welcome') || ($event->data[2] == 'syntax') ||
             ($event->data[2] == 'dokuwiki') || ($event->data[2] == 'playground') || 

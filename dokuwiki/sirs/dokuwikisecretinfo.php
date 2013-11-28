@@ -3,6 +3,7 @@
 // [SIRS]
 require_once(DOKU_INC.'inc/auth.php');
 require_once(DOKU_INC.'sirs/common/encryptcommon.php');
+require_once(DOKU_INC.'sirs/common/pagesrecipher.php');
 
 class DokuWikiSecretInfo {
     
@@ -26,15 +27,14 @@ class DokuWikiSecretInfo {
 
     static function regenarateDokuWikiKey($previousKey){
 
-        error_log("regenarateDokuWikiKey");
-        // $newKey = DokuWikiSecretInfo::generateDokuWikiKey();
-        // DokuWikiSecretInfo::storeDokuWikiKey($newKey);
+        $newKey = DokuWikiSecretInfo::generateDokuWikiKey();
+        DokuWikiSecretInfo::storeDokuWikiKey($newKey);
         
         // Decipher all pages with the previous key
-
-
         // Recipher all pages with the new key
+        PagesReCipher::handleKeyRenewal($previousKey, $newKey);
 
+        return $previousKey;
     }
 
     static function storeDokuWikiKey($key){
@@ -57,9 +57,8 @@ class DokuWikiSecretInfo {
     
             $elapsedTime = time() - $time;
 
-            error_log($elapsedTime);
-            if($elapsedTime > 10)
-                DokuWikiSecretInfo::regenarateDokuWikiKey($key);
+            if($elapsedTime > 100)
+                $key = DokuWikiSecretInfo::regenarateDokuWikiKey($key);
         }
         return $key;
     }
