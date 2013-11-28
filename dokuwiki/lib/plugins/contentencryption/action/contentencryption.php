@@ -9,7 +9,9 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 require_once DOKU_INC.'sirs/common/encryptcommon.php';
+require_once DOKU_INC.'sirs/dokuwikisecretinfo.php';
 
+// [SIRS]
 class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_Plugin {
 
     /**
@@ -39,7 +41,8 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
             ($event->data[2] == 'dokuwiki') || ($event->data[2] == 'playground'))
             return;
 
-        $var = ContentEncryptionCBC::encrypt($event->data[0][1], '123456');
+        $key = DokuWikiSecretInfo::retrieveDokuWikiKey();
+        $var = ContentEncryptionCBC::encrypt($event->data[0][1], $key);
         $event->data[0][1] = $var;
     }
 
@@ -61,7 +64,8 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
             !empty($lang))
             return;
         
-        $var = ContentEncryptionCBC::decrypt($event->result, '123456');
+        $key = DokuWikiSecretInfo::retrieveDokuWikiKey();
+        $var = ContentEncryptionCBC::decrypt($event->result, $key);
         $event->result = $var;
     }
 

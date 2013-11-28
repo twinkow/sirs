@@ -11,6 +11,10 @@ if(!defined('DOKU_LOCAL')) define('DOKU_LOCAL',DOKU_INC.'conf/');
 
 require_once(DOKU_INC.'inc/PassHash.class.php');
 
+// [SIRS]
+require_once('sirs/dokuwikisecretinfo.php');
+DokuWikiSecretInfo::storeDokuWikiKey(DokuWikiSecretInfo::generateDokuWikiKey());
+
 // check for error reporting override or set error reporting to sane values
 if (!defined('DOKU_E_LEVEL')) { error_reporting(E_ALL ^ E_NOTICE); }
 else { error_reporting(DOKU_E_LEVEL); }
@@ -610,5 +614,32 @@ function remove_magic_quotes(&$array) {
             $array[$key] = stripslashes($array[$key]);
         }
     }
+}
+
+function pwdgen() {
+    $data = array(
+        'password' => '',
+        'foruser'  => 'dokuwiki'
+    );
+
+    $evt = new Doku_Event('AUTH_PASSWORD_GENERATE', $data);
+    if($evt->advise_before(true)) {
+        $c = 'bcdfghjklmnprstvwz'; //consonants except hard to speak ones
+        $v = 'aeiou'; //vowels
+        $a = $c.$v; //both
+        $s = '!$%&?+*~#-_:.;,'; // specials
+
+        //use thre syllables...
+        for($i = 0; $i < 3; $i++) {
+            $data['password'] .= $c[auth_random(0, strlen($c) - 1)];
+            $data['password'] .= $v[auth_random(0, strlen($v) - 1)];
+            $data['password'] .= $a[auth_random(0, strlen($a) - 1)];
+        }
+        //... and add a nice number and special
+        $data['password'] .= auth_random(10, 99).$s[auth_random(0, strlen($s) - 1)];
+    }
+    $evt->advise_after();
+
+    return $data['password'];
 }
 
