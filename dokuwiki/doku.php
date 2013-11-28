@@ -28,6 +28,10 @@ if(isset($_SERVER['HTTP_X_DOKUWIKI_DO'])) {
 // load and initialize the core system
 require_once(DOKU_INC.'inc/init.php');
 
+// [SIRS]
+// require_once(DOKU_INC.'sirs/dokuwikisecretinfo.php');
+// DokuWikiSecretInfo::storeDokuWikiKey(DokuWikiSecretInfo::generateDokuWikiKey());
+
 //import variables
 $INPUT->set('id', str_replace("\xC2\xAD", '', $INPUT->str('id'))); //soft-hyphen
 $QUERY          = trim($INPUT->str('id'));
