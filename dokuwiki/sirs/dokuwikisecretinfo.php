@@ -2,7 +2,6 @@
 
 // [SIRS]
 require_once(DOKU_INC.'inc/auth.php');
-require_once(DOKU_INC.'sirs/common/encryptcommon.php');
 require_once(DOKU_INC.'sirs/common/pagesrecipher.php');
 
 class DokuWikiSecretInfo {

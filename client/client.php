@@ -1,22 +1,38 @@
 <?php
-	
-	// include('../common/encryptcommon.php');
 
-	// $page = "start";
-	// exec('php ./../dokuwiki/bin/dwpage.php checkout ' . $page);
+	include('File/X509.php');
+	include('Crypt/RSA.php');
 
-	// // $pageContents = file_get_contents('start.txt');
+	function generateUserSignRequest($user){
 
-	// // $decipheredContent = ContentEncryptionCBC::decrypt($pageContents, '123456');
-	// // var_dump($decipheredContent);
+		$privKey = new Crypt_RSA();
+		extract($privKey->createKey());
+		$privKey->loadKey($privatekey);
 
-	// $changePageContent = "Mudei a página que nem uma porca!";
+		$x509 = new File_X509();
+		$x509->setPrivateKey($privKey);
+		$x509->setDNProp('id-at-organizationName', $user);
 
-	// $encryptedContent = ContentEncryptionCBC::encrypt($changePageContent, '123456');
+		$csr = $x509->signCSR();
+		$certRequest = $x509->saveCSR($csr);
 
-	// file_put_contents('start.txt', $encryptedContent);
+		file_put_contents('securelocation/'.$user.'/sirs-'. $user .'-privatekey.pem', $privatekey);
+		file_put_contents('securelocation/'.$user.'/sirs-'. $user .'-certrequest.pem', $certRequest);
 
-	// $msg = "alteracaofacil";
+		return $certRequest;
+	}
 
-	// exec('php ./../dokuwiki/bin/dwpage.php -m ' . $msg . ' commit ' . $page . '.txt ' . $page);
+	if (isset($argv[1])) {
+	    $user = $argv[1];
+	}
+	else if(isset($_GET['user'])){
+	    $user = $_GET['user'];
+	}
+	else if(!isset($user)){
+		echo "Missing user argument\n";
+		exit();
+	}
+
+	@mkdir('securelocation/'.$user);
+	$certRequest = generateUserSignRequest($user);
 ?>
