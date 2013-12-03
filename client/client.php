@@ -16,6 +16,7 @@
 		$csr = $x509->signCSR();
 		$certRequest = $x509->saveCSR($csr);
 
+		file_put_contents('securelocation/'.$user.'/sirs-'. $user .'-publickey.pem', $publickey);
 		file_put_contents('securelocation/'.$user.'/sirs-'. $user .'-privatekey.pem', $privatekey);
 		file_put_contents('securelocation/'.$user.'/sirs-'. $user .'-certrequest.pem', $certRequest);
 

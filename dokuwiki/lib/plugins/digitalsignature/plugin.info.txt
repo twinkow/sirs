@@ -1,0 +1,7 @@
+base   digitalsignature
+author Alex Almeida
+email  alexcp.almeida@gmail.com
+date   2013-12-03
+name   digitalsignature plugin
+desc   Make digital signature
+url    http://www.tiago.com/gpi

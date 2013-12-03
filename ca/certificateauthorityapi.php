@@ -102,7 +102,8 @@
 	if (!empty($_POST['submitCSR'])) {
 		
 		$submitCSR = $_POST['submitCSR'];
-		$user = $_POST['user'];
+		$user = $_POST['userCSR'];
+		error_log($user);
 		if ($_FILES["fileCSR"]["error"] > 0){
 		  echo "Error: " . $_FILES["fileCSR"]["error"] . "<br>";
 		} else {
