@@ -19,7 +19,7 @@
  */
 function addBtnActionDigsig($btn, props, edid) {
     $btn.click(function() {
-        
+        alert("ola");
         return false;
     });
  
