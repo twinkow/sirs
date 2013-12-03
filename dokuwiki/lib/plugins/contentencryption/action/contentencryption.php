@@ -10,6 +10,10 @@
 if(!defined('DOKU_INC')) die();
 require_once DOKU_INC.'sirs/common/encryptcommon.php';
 require_once DOKU_INC.'sirs/dokuwikisecretinfo.php';
+require DOKU_INC.'sirs/aws/aws-autoloader.php';
+use Aws\Glacier\GlacierClient;
+use Aws\S3\S3Client;
+
 
 // [SIRS]
 class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_Plugin {
@@ -21,7 +25,8 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
      * @return void
      */
     public function register(Doku_Event_Handler &$controller) {
-        $controller->register_hook('IO_WIKIPAGE_WRITE', 'BEFORE', $this, 'handle_io_wikipage_write');
+        $controller->register_hook('IO_WIKIPAGE_WRITE', 'BEFORE', $this, 'handle_io_wikipage_write_before');
+        $controller->register_hook('IO_WIKIPAGE_WRITE', 'AFTER', $this, 'handle_io_wikipage_write_after');
         $controller->register_hook('IO_WIKIPAGE_READ', 'AFTER', $this, 'handle_io_wikipage_read');
     }
 
@@ -34,7 +39,7 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
      * @return void
      */
 
-    public function handle_io_wikipage_write(Doku_Event &$event, $param) {
+    public function handle_io_wikipage_write_before(Doku_Event &$event, $param) {
 
         if(($event->data[2] == 'welcome') || ($event->data[2] == 'syntax') ||
             ($event->data[2] == 'dokuwiki') || ($event->data[2] == 'playground'))
@@ -43,6 +48,51 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
         $key = DokuWikiSecretInfo::retrieveDokuWikiKey();
         $var = ContentEncryptionCBC::encrypt($event->data[0][1], $key);
         $event->data[0][1] = $var;
+    }
+
+    public function handle_io_wikipage_write_after(Doku_Event &$event, $param) {
+
+        // makes backup zip
+        $pathToPages = DOKU_INC . 'data/pages/';
+        $filename = "pages-" . date_format(date_create(), 'YmdHis') . ".zip";
+        $output = exec("zip -r $filename \"$pathToPages\"");
+
+        $this->writeToS3($filename);
+    }
+
+    private function writeToS3($filename)
+    {
+        $filenameWithPath = DOKU_INC . $filename;
+
+        $client = S3Client::factory(array(
+            'key'      => 'AKIAIY7ZJJCCPV2MDTTQ',
+            'secret'   => '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',
+        ));
+
+        $acl = 'private';
+        $bucket = 'sirs';
+        $client->upload($bucket, $filename, fopen($filenameWithPath, 'r'), $acl);
+    }
+
+    private function writeToGlacier($filename)
+    {
+        $filenameWithPath = DOKU_INC . $filename;
+        $vaultname = 'sirs';
+
+        // Glacier connect
+        $glacierClient = GlacierClient::factory(array(
+            'key'    => 'AKIAIY7ZJJCCPV2MDTTQ',
+            'secret' => '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',
+            'region' => 'eu-west-1',
+        ));
+
+        $result = $glacierClient->uploadArchive(array(
+            'accountId' => '-',
+            'vaultName' => $vaultname,
+            'body'      => fopen($filenameWithPath, 'r'),
+        ));
+
+        // $archiveId = $result->get('archiveId');
     }
 
      /**
@@ -58,10 +108,10 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
 
         $lang = strstr($event->data[0][0], "/lang/");
         if(($event->data[2] == 'welcome') || ($event->data[2] == 'syntax') ||
-            ($event->data[2] == 'dokuwiki') || ($event->data[2] == 'playground') || 
+            ($event->data[2] == 'dokuwiki') || ($event->data[2] == 'playground') ||
             !empty($lang))
             return;
-        
+
         $key = DokuWikiSecretInfo::retrieveDokuWikiKey();
         $var = ContentEncryptionCBC::decrypt($event->result, $key);
         $event->result = $var;
