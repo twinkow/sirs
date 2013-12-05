@@ -18,6 +18,8 @@ use Aws\S3\S3Client;
 // [SIRS]
 class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_Plugin {
 
+    private $pageszippedpath;
+
     /**
      * Registers a callback function for a given event
      *
@@ -25,8 +27,9 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
      * @return void
      */
     public function register(Doku_Event_Handler &$controller) {
+        $this->pageszippedpath = DOKU_INC.'data/pageszipped';
         $controller->register_hook('IO_WIKIPAGE_WRITE', 'BEFORE', $this, 'handle_io_wikipage_write_before');
-        // $controller->register_hook('IO_WIKIPAGE_WRITE', 'AFTER', $this, 'handle_io_wikipage_write_after');
+        $controller->register_hook('IO_WIKIPAGE_WRITE', 'AFTER', $this, 'handle_io_wikipage_write_after');
         $controller->register_hook('IO_WIKIPAGE_READ', 'AFTER', $this, 'handle_io_wikipage_read');
     }
 
@@ -55,14 +58,14 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
         // makes backup zip
         $pathToPages = DOKU_INC . 'data/pages/';
         $filename = "pages-" . date_format(date_create(), 'YmdHis') . ".zip";
-        $output = exec("zip -r $filename \"$pathToPages\"");
+        $output = exec("zip -r $this->pageszippedpath/$filename \"$pathToPages\"");
 
         $this->writeToS3($filename);
     }
 
     private function writeToS3($filename)
     {
-        $filenameWithPath = DOKU_INC . $filename;
+        $filenameWithPath = "$this->pageszippedpath/$filename";
 
         $client = S3Client::factory(array(
             'key'      => 'AKIAIY7ZJJCCPV2MDTTQ',
@@ -76,7 +79,7 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
 
     private function writeToGlacier($filename)
     {
-        $filenameWithPath = DOKU_INC . $filename;
+        $filenameWithPath = "$this->pageszippedpath/$filename";
         $vaultname = 'sirs';
 
         // Glacier connect
@@ -92,7 +95,6 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
             'body'      => fopen($filenameWithPath, 'r'),
         ));
 
-        // $archiveId = $result->get('archiveId');
     }
 
      /**
@@ -116,7 +118,6 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
         $var = ContentEncryptionCBC::decrypt($event->result, $key);
         $event->result = $var;
     }
-
 }
 
 // vim:ts=4:sw=4:et:

@@ -26,6 +26,7 @@ class action_plugin_message extends DokuWiki_Action_Plugin {
         $contr->register_hook('ACTION_ACT_PREPROCESS', 'AFTER', $this, '_display_message', array());
     }
 
+    // [SIRS]
     function _display_message(&$event, $param) {
         global $conf;
 
