@@ -18,19 +18,16 @@ class action_plugin_digitalsignature_digitalsignature extends DokuWiki_Action_Pl
      * @return void
      */
     public function register(Doku_Event_Handler &$controller) {
-        $controller->register_hook('TOOLBAR_DEFINE', 'AFTER', $this, 'insert_button', array());
+        $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'handle_act', array());
     }
 
-    /**
-     * Inserts the toolbar button
-     */
-    public function insert_button(&$event, $param) {
+    function handle_act(Doku_Event &$event, $param) {
 
-        $event->data[] = array (
-            'type' => 'Digsig',
-            'title' => $this->getLang('qb_abutton'),
-            'icon' => '../../plugins/digitalsignature/test.png',
-        );
+        if(is_array($event->data) && isset($event->data['save'])) {
+
+            // var_dump($event);
+        }
+        else return;
     }
 }
 

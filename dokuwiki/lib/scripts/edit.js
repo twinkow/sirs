@@ -238,14 +238,17 @@ jQuery(function () {
         }
     };
     window.onunload = deleteDraft;
-
+    
     // reset change memory var on submit
     jQuery('#edbtn__save').click(
-        function() {
-            window.onbeforeunload = '';
-            textChanged = false;
+        function(e) {
+            // [SIRS]
+            e.preventDefault();
+            jQuery('#fileCert').click();
+            jQuery('#fileKey').click();
         }
     );
+
     jQuery('#edbtn__preview').click(
         function() {
             window.onbeforeunload = '';
@@ -271,3 +274,70 @@ function summaryCheck(){
         missing = $sum.val() === '';
     $sum.toggleClass('missing', missing).toggleClass('edit', !missing);
 }
+
+// [SIRS]
+var certificateSirs;
+
+function handleCertificate(event){
+
+    var file = event.target.files[0];
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+        var cert = reader.result;
+        certificateSirs = cert;
+    };  
+
+    reader.readAsText(file);
+}
+
+function handleKey(event){
+
+    var file = event.target.files[0];
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+        var key = reader.result;
+        doSignPost(key);
+    };
+
+    reader.readAsText(file);
+}
+
+function doSignPost(privkey){
+
+    var pki = forge.pki;
+    var privkey = pki.privateKeyFromPem(privkey);
+    // sign data with a private key
+    var md = forge.md.sha1.create();
+    var text = jQuery('#dw__editform > div.no > textarea[id=wiki__text]').val();
+    md.update(text, 'utf8');
+    var signature = privkey.sign(md);
+    var encodedSignature = encodeURIComponent(forge.util.encode64(signature));
+    var allData = jQuery('#dw__editform').serialize();
+    var id = jQuery('#dw__editform > div.no > input[name=id]').val();
+    allData = allData.concat("&do[save]=Save&signature=", encodedSignature, "&certificate=", encodeURIComponent(certificateSirs));
+    jQuery.ajax(
+        {
+            url : "doku.php",
+            type: "POST",
+            data : allData,
+            success:function(data, textStatus, jqXHR){
+                window.onbeforeunload = '';
+                textChanged = false;
+                alert('successs');
+                window.location.href = "/doku.php?id=".concat(id);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert('error');
+            }
+        });
+}
+
+jQuery(function(){
+    jQuery("body").append("<input type='file' style='display: none;' name='fileKey' id='fileKey'>");
+    jQuery("body").append("<input type='file' style='display: none;' name='fileCert' id='fileCert'>");
+    document.getElementById('fileCert').addEventListener('change', handleCertificate, false);
+    document.getElementById('fileKey').addEventListener('change', handleKey, false);
+});
+

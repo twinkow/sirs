@@ -27,10 +27,13 @@ if(isset($_SERVER['HTTP_X_DOKUWIKI_DO'])) {
 
 // load and initialize the core system
 require_once(DOKU_INC.'inc/init.php');
+require_once('File/X509.php');
+require_once('Crypt/RSA.php');
+require_once('Math/BigInteger.php');
 
 // [SIRS]
-// require_once(DOKU_INC.'sirs/dokuwikisecretinfo.php');
-// DokuWikiSecretInfo::storeDokuWikiKey(DokuWikiSecretInfo::generateDokuWikiKey());
+$SIGNATURE = $INPUT->str('signature');
+$CERTIFICATE = $INPUT->str('certificate');
 
 //import variables
 $INPUT->set('id', str_replace("\xC2\xAD", '', $INPUT->str('id'))); //soft-hyphen

@@ -373,6 +373,7 @@ function act_draftsave($act){
  * @author Andreas Gohr <andi@splitbrain.org>
  */
 function act_save($act){
+    // [SIRS]
     global $ID;
     global $DATE;
     global $PRE;
@@ -382,6 +383,8 @@ function act_save($act){
     global $lang;
     global $INFO;
     global $INPUT;
+    global $MSG;
+    global $conf;
 
     //spam check
     if(checkwordblock()) {
@@ -392,16 +395,28 @@ function act_save($act){
     if($DATE != 0 && $INFO['meta']['date']['modified'] > $DATE )
         return 'conflict';
 
-    //save it
-    saveWikiText($ID,con($PRE,$TEXT,$SUF,1),$SUM,$INPUT->bool('minor')); //use pretty mode for con
+    if(verifyUserSignature()){
+        //save it
+        saveWikiText($ID,con($PRE,$TEXT,$SUF,1),$SUM,$INPUT->bool('minor'));
+        $fileValid=$conf['cachedir'].'/message_validsignature.txt';
+        $fileInvalid=$conf['cachedir'].'/message_invalidsignature.txt';
+        @file_put_contents($fileValid,"The signature that user ". $INFO['userinfo']['name']." provided is valid! His save request was completed successfully.");
+        if(file_exists($fileInvalid))
+            unlink($fileInvalid);
+    }
+    else {
+        $fileInvalid=$conf['cachedir'].'/message_invalidsignature.txt';
+        @file_put_contents($fileInvalid,"The signature that user ". $INFO['userinfo']['name'] ." provided is invalid! His save request was discarded.");
+        $fileValid=$conf['cachedir'].'/message_validsignature.txt';
+        if(file_exists($fileValid))
+            unlink($fileValid);
+    }
+
     //unlock it
     unlock($ID);
-
     //delete draft
     act_draftdel($act);
     session_write_close();
-
-    // when done, show page
     return 'show';
 }
 
@@ -525,7 +540,6 @@ function act_auth($act){
 function act_edit($act){
     global $ID;
     global $INFO;
-
     global $TEXT;
     global $RANGE;
     global $PRE;
@@ -814,6 +828,25 @@ function subscription_handle_post(&$params) {
     }
 
     $params = compact('target', 'style', 'action');
+}
+
+// [SIRS]
+function verifyUserSignature(){
+    global $TEXT;
+    global $SIGNATURE;
+    global $CERTIFICATE;
+
+    $x509 = new File_X509();
+    $cert = $x509->loadX509($CERTIFICATE);
+    $key = $x509->getPublicKey();
+
+    $rsa = new Crypt_RSA();
+    $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+    $rsa->loadKey(trim($key));
+    $rsa->setPublicKey();
+    $publickey = $rsa->getPublicKey();
+
+    return $rsa->verify($TEXT, base64_decode($SIGNATURE));
 }
 
 //Setup VIM: ex: et ts=2 :

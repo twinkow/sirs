@@ -275,7 +275,7 @@ define('MSG_MANAGERS_ONLY',2);
 define('MSG_ADMINS_ONLY',4);
 
 function msg($message,$lvl=0,$line='',$file='',$allow=MSG_PUBLIC){
-    global $MSG, $MSG_shown;
+    global $MSG, $MSG_shown, $conf;
     $errors[-1] = 'error';
     $errors[0]  = 'info';
     $errors[1]  = 'success';
@@ -285,6 +285,7 @@ function msg($message,$lvl=0,$line='',$file='',$allow=MSG_PUBLIC){
 
     if(!isset($MSG)) $MSG = array();
     $MSG[]=array('lvl' => $errors[$lvl], 'msg' => $message, 'allow' => $allow);
+    
     if(isset($MSG_shown) || headers_sent()){
         if(function_exists('html_msgarea')){
             html_msgarea();

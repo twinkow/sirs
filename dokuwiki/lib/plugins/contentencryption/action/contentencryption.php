@@ -26,7 +26,7 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
      */
     public function register(Doku_Event_Handler &$controller) {
         $controller->register_hook('IO_WIKIPAGE_WRITE', 'BEFORE', $this, 'handle_io_wikipage_write_before');
-        $controller->register_hook('IO_WIKIPAGE_WRITE', 'AFTER', $this, 'handle_io_wikipage_write_after');
+        // $controller->register_hook('IO_WIKIPAGE_WRITE', 'AFTER', $this, 'handle_io_wikipage_write_after');
         $controller->register_hook('IO_WIKIPAGE_READ', 'AFTER', $this, 'handle_io_wikipage_read');
     }
 

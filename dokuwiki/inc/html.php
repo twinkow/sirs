@@ -2001,4 +2001,3 @@ function html_tab($href, $caption, $selected=false) {
          .  '</li>'.NL;
     echo $tab;
 }
-
