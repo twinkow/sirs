@@ -35,5 +35,6 @@
 	}
 
 	@mkdir('securelocation/'.$user);
-	$certRequest = generateUserSignRequest($user);
+	generateUserSignRequest($user);
+
 ?>

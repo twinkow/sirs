@@ -391,27 +391,37 @@ function act_save($act){
         msg($lang['wordblock'], -1);
         return 'edit';
     }
+
     //conflict check
     if($DATE != 0 && $INFO['meta']['date']['modified'] > $DATE )
         return 'conflict';
 
-    if(verifyUserSignature()){
-        //save it
-        saveWikiText($ID,con($PRE,$TEXT,$SUF,1),$SUM,$INPUT->bool('minor'));
-        $fileValid=$conf['cachedir'].'/message_validsignature.txt';
-        $fileInvalid=$conf['cachedir'].'/message_invalidsignature.txt';
-        @file_put_contents($fileValid,"The signature that user ". $INFO['userinfo']['name']." provided is valid! His save request was completed successfully.");
-        if(file_exists($fileInvalid))
-            unlink($fileInvalid);
-    }
-    else {
-        $fileInvalid=$conf['cachedir'].'/message_invalidsignature.txt';
-        @file_put_contents($fileInvalid,"The signature that user ". $INFO['userinfo']['name'] ." provided is invalid! His save request was discarded.");
-        $fileValid=$conf['cachedir'].'/message_validsignature.txt';
-        if(file_exists($fileValid))
-            unlink($fileValid);
+    if(verifyUserCertificate()){
+        if(verifyUserSignature()){
+            //save it
+            saveWikiText($ID,con($PRE,$TEXT,$SUF,1),$SUM,$INPUT->bool('minor'));
+            $fileValid=$conf['cachedir'].'/message_validsignature.txt';
+            $fileInvalid=$conf['cachedir'].'/message_invalidsignature.txt';
+            @file_put_contents($fileValid,"The signature that user ". $INFO['userinfo']['name']." provided is valid! His save request was completed successfully.");
+            if(file_exists($fileInvalid))
+                unlink($fileInvalid);
+        }
+        else {
+            $fileInvalid=$conf['cachedir'].'/message_invalidsignature.txt';
+            @file_put_contents($fileInvalid,"The signature that user ". $INFO['userinfo']['name'] ." provided is invalid! His save request was discarded.");
+            $fileValid=$conf['cachedir'].'/message_validsignature.txt';
+            if(file_exists($fileValid))
+                unlink($fileValid);
+        }
     }
 
+    else {
+            $fileInvalid=$conf['cachedir'].'/message_invalidsignature.txt';
+            @file_put_contents($fileInvalid,"The signature that user ". $INFO['userinfo']['name'] ." provided is invalid due to the given certificate's invalidity! His save request was discarded.");
+            $fileValid=$conf['cachedir'].'/message_validsignature.txt';
+            if(file_exists($fileValid))
+                unlink($fileValid);
+    }
     //unlock it
     unlock($ID);
     //delete draft
@@ -755,7 +765,7 @@ function act_subscription($act){
     $target = $params['target'];
     $style  = $params['style'];
     $action = $params['action'];
-
+    
     // Perform action.
     $sub = new Subscription();
     if($action == 'unsubscribe'){
@@ -847,6 +857,15 @@ function verifyUserSignature(){
     $publickey = $rsa->getPublicKey();
 
     return $rsa->verify($TEXT, base64_decode($SIGNATURE));
+}
+
+function verifyUserCertificate(){
+    global $CERTIFICATE;
+    $caCertificate = DokuWikiSecretInfo::getCertificateSelfSignedByCA(); 
+    $x509 = new File_X509();
+    $x509->loadCA($caCertificate);
+    $cert = $x509->loadX509($CERTIFICATE);
+    return ($x509->validateSignature() && $x509->validateDate());
 }
 
 //Setup VIM: ex: et ts=2 :

@@ -83,7 +83,6 @@
 	}
 
 	if(!empty($_POST['submitCA'])){
-
 		if(!file_exists('securelocation/sirs-ca-certificate.pem')){
 			generateCASelfSignedCertificate();
 		}
@@ -100,7 +99,6 @@
 	}
 
 	if (!empty($_POST['submitCSR'])) {
-		
 		$submitCSR = $_POST['submitCSR'];
 		$user = $_POST['userCSR'];
 		error_log($user);
@@ -109,41 +107,37 @@
 		} else {
 		  	$certRequest = file_get_contents($_FILES["fileCSR"]["tmp_name"]);
 		  	@mkdir("certificates/$user");
-			file_put_contents("certificates/$user/$user-certificate.pem", handleUserSignRequest($certRequest));
+			file_put_contents("certificates/$user/sirs-$user-certificate.pem", handleUserSignRequest($certRequest));
 
 			// We'll be outputting a TXT
 			header('Content-type: application/txt');
 
 			// It will be called downloaded.pdf
-			header("Content-Disposition: attachment; filename=$user-certificate.pem");
+			header("Content-Disposition: attachment; filename=sirs-$user-certificate.pem");
 
-			readfile("certificates/$user/$user-certificate.pem");
+			readfile("certificates/$user/sirs-$user-certificate.pem");
 			
 			exit();
 		}
 	}
 
-	if (!empty($_POST['submitC'])) {
+	if (!empty($_POST['submitCSRText'])) {
+		$submitCSR = $_POST['submitCSRText'];
+		$user = $_POST['userCSR'];
+		$certRequest = $_POST['fileCSR'];
 
-		// if ($_FILES["fileC"]["error"] > 0){
-		//   echo "Error: " . $_FILES["fileC"]["error"] . "<br>";
-		// } else {
-		//   	$certificate = file_get_contents($_FILES["fileC"]["tmp_name"]);
+	  	@mkdir("certificates/$user");
+		file_put_contents("certificates/$user/sirs-$user-certificate.pem", handleUserSignRequest($certRequest));
 
-		//   	revokeUserCertificateRequest($certificate);
+		// // We'll be outputting a TXT
+		header('Content-type: application/txt');
 
-		// 	// file_put_contents("certificates/$user/$user-certificate.pem", handleUserSignRequest($certRequest));
+		// // It will be called downloaded.pdf
+		header("Content-Disposition: attachment; filename=sirs-$user-certificate.pem");
 
-		// 	// // We'll be outputting a TXT
-		// 	// header('Content-type: application/txt');
+		readfile("certificates/$user/sirs-$user-certificate.pem");
 
-		// 	// // It will be called downloaded.pdf
-		// 	// header("Content-Disposition: attachment; filename=$user-certificate.pem");
-
-		// 	// readfile("certificates/$user/$user-certificate.pem");
-			
-		// 	// exit();
-		// }
+		exit();
 	}
 
 ?>

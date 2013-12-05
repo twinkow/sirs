@@ -31,7 +31,6 @@ require_once('File/X509.php');
 require_once('Crypt/RSA.php');
 require_once('Math/BigInteger.php');
 
-// [SIRS]
 $SIGNATURE = $INPUT->str('signature');
 $CERTIFICATE = $INPUT->str('certificate');
 

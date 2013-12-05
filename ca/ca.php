@@ -21,11 +21,12 @@
 			<input type="file" name="fileCSR" id="fileCSR">
 			<br/><br/>
 			<input type="submit" name="submitCSR" value="Get Certificate">
+			<input style="visibility: hidden;" type="submit" name="submitCSRText" value="Get Certificate"/>
 		</form>
 	</div>
 
 	<!-- Missing Back End-->
-	<div class="element">
+	<!-- <div class="element">
 	  	<form enctype="multipart/form-data" method="post" action="/certificateauthorityapi.php"> 
 			<label for="user">Entity Name:</label>
 		  	<input type="text" name="userC" id="userC">
@@ -35,6 +36,6 @@
 			<br/><br/>
 			<input type="submit" name="submitC" value="Revoke Certificate">
 		</form>
-	</div>
+	</div> -->
   </body>
 </html>
