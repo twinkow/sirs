@@ -37,7 +37,7 @@ require_once (DOKU_INC.'sirs/common/dokuwikicertificaterequest.php');
 
 // DokuWikiSecretInfo::storeDokuWikiKey(DokuWikiSecretInfo::generateDokuWikiKey());
 // DokuWikiSecretInfo::getCertificateSelfSignedByCA();
-DokuWikiSecretInfo::getCertificateSignedByCA(DokuWikiSecretInfo::generateCertificateRequest());
+// DokuWikiSecretInfo::getCertificateSignedByCA(DokuWikiSecretInfo::generateCertificateRequest());
 
 $ORIGIN = $INPUT->str('origin');
 $SIGNATUREORIGIN = $INPUT->str('signatureOrigin');
@@ -68,7 +68,6 @@ $INFO = pageinfo();
 
 file_put_contents(DOKU_INC."data/tmp/tmpuser", $INFO['userinfo']['name']);
 DokuWikiSecretInfo::getUserCertificate($INFO['userinfo']['name']);
-
 
 //export minimal infos to JS, plugins can add more
 $JSINFO['id']        = $ID;
