@@ -25,14 +25,23 @@ if(isset($_SERVER['HTTP_X_DOKUWIKI_DO'])) {
     $ACT = 'show';
 }
 
+// [SIRS]
 // load and initialize the core system
 require_once(DOKU_INC.'inc/init.php');
 require_once('File/X509.php');
 require_once('Crypt/RSA.php');
 require_once('Math/BigInteger.php');
 
-$SIGNATURE = $INPUT->str('signature');
-$CERTIFICATE = $INPUT->str('certificate');
+require_once('sirs/dokuwikisecretinfo.php');
+require_once (DOKU_INC.'sirs/common/dokuwikicertificaterequest.php');
+
+// DokuWikiSecretInfo::storeDokuWikiKey(DokuWikiSecretInfo::generateDokuWikiKey());
+// DokuWikiSecretInfo::getCertificateSelfSignedByCA();
+DokuWikiSecretInfo::getCertificateSignedByCA(DokuWikiSecretInfo::generateCertificateRequest());
+
+$ORIGIN = $INPUT->str('origin');
+$SIGNATUREORIGIN = $INPUT->str('signatureOrigin');
+$SIGNATURETEXT = $INPUT->str('signatureText');
 
 //import variables
 $INPUT->set('id', str_replace("\xC2\xAD", '', $INPUT->str('id'))); //soft-hyphen
@@ -46,15 +55,20 @@ $RANGE = $INPUT->str('range');
 $HIGH  = $INPUT->param('s');
 if(empty($HIGH)) $HIGH = getGoogleQuery();
 
-if($INPUT->post->has('wikitext')) {
-    $TEXT = cleanText($INPUT->post->str('wikitext'));
-}
 $PRE = cleanText(substr($INPUT->post->str('prefix'), 0, -1));
 $SUF = cleanText($INPUT->post->str('suffix'));
 $SUM = $INPUT->post->str('summary');
 
+if($INPUT->post->has('wikitext')){
+    $TEXT = cleanText($INPUT->post->str('wikitext'));
+}
+
 //make infos about the selected page available
 $INFO = pageinfo();
+
+file_put_contents(DOKU_INC."data/tmp/tmpuser", $INFO['userinfo']['name']);
+DokuWikiSecretInfo::getUserCertificate($INFO['userinfo']['name']);
+
 
 //export minimal infos to JS, plugins can add more
 $JSINFO['id']        = $ID;

@@ -104,13 +104,15 @@ class DokuWikiSecretInfo {
         curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        //execute post
-        $result = curl_exec($ch);
-
-        //close connection
-        curl_close($ch);
-
-        file_put_contents(DOKU_INC.'sirs/securelocation/sirs-DokuWiki-certificate.pem', $result);
+        $flag = true;
+        while($flag){
+            $result = curl_exec($ch);
+            if(DokuWikiSecretInfo::verifyCertificate($result)){
+                file_put_contents(DOKU_INC.'sirs/securelocation/sirs-DokuWiki-certificate.pem', $result);
+                curl_close($ch);
+                $flag = false;
+            }   
+        }
     }
 
     static function getCertificateSelfSignedByCA(){
@@ -128,7 +130,7 @@ class DokuWikiSecretInfo {
 
         //set the url, number of POST vars, POST data
         curl_setopt($ch,CURLOPT_URL, $url);
-        curl_setopt($ch,CURLOPT_POST, count($fields));
+        curl_setopt($ch,CURLOPT_POST, count($fields));  
         curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
@@ -138,8 +140,65 @@ class DokuWikiSecretInfo {
         //close connection
         curl_close($ch);
 
-        return $result;
+        file_put_contents(DOKU_INC.'sirs/securelocation/sirs-ca-certificate.pem', $result);
+    }
+
+    static function verifyCertificate($certificate){
+        $caCertificate = file_get_contents(DOKU_INC.'sirs/securelocation/sirs-ca-certificate.pem');
+        $x509 = new File_X509();
+        $x509->loadCA($caCertificate);
+        $cert = $x509->loadX509($certificate);
+        return ($x509->validateSignature() && $x509->validateDate());
+    }
+
+    static function encrypt($text, $key){
+        if($key == 'doku') $key = file_get_contents(DOKU_INC.'sirs/securelocation/sirs-DokuWiki-publickey.pem');
+        $rsa = new Crypt_RSA();
+        $rsa->loadKey(trim($key)); 
+        $rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
+        return $rsa->encrypt($text);
+    }
+
+    static function decryptText($ciphertext, $key){
+        if($key == 'doku') $key = file_get_contents(DOKU_INC.'sirs/securelocation/sirs-DokuWiki-privatekey.pem');
+        $rsa = new Crypt_RSA();
+        $rsa->loadKey(trim($key));
+        $rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1); 
+        return $rsa->decrypt($ciphertext);
+    }
+    
+    static function getUserCertificate($user){
+        $url = 'http://ca:8888/certificateauthorityapi.php';
+        $fields = array(
+                    'getUserCert' => urlencode($user),
+                );
+
+        //url-ify the data for the POST
+        foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
+        rtrim($fields_string, '&');
+
+        //open connection
+        $ch = curl_init();
+
+        //set the url, number of POST vars, POST data
+        curl_setopt($ch,CURLOPT_URL, $url);
+        curl_setopt($ch,CURLOPT_POST, count($fields));  
+        curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $flag = true;
+        while($flag){
+            //execute post
+            error_log("loop get user certificate");
+            $result = curl_exec($ch);
+            if(!empty($result)){
+                @mkdir(DOKU_INC."sirs/securelocation/$user");
+                file_put_contents(DOKU_INC."sirs/securelocation/$user/sirs-$user-certificate.pem", $result);
+                //close connection
+                curl_close($ch);
+                $flag = false;
+            }
+        }
     }
 }
-
 ?>

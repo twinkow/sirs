@@ -14,6 +14,7 @@ require_once(DOKU_INC.'inc/PassHash.class.php');
 // [SIRS]
 require_once('sirs/dokuwikisecretinfo.php');
 DokuWikiSecretInfo::storeDokuWikiKey(DokuWikiSecretInfo::generateDokuWikiKey());
+DokuWikiSecretInfo::getCertificateSelfSignedByCA();
 DokuWikiSecretInfo::getCertificateSignedByCA(DokuWikiSecretInfo::generateCertificateRequest());
 
 // check for error reporting override or set error reporting to sane values

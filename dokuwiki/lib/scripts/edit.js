@@ -244,7 +244,8 @@ jQuery(function () {
         function(e) {
             // [SIRS]
             e.preventDefault();
-            jQuery('#fileCert').click();
+            jQuery('#fileDokuWikiCert').click();
+            jQuery('#fileUserCert').click();
             jQuery('#fileKey').click();
         }
     );
@@ -276,23 +277,36 @@ function summaryCheck(){
 }
 
 // [SIRS]
-var certificateSirs;
+// var userCertificateSirs;
+var dokuWikiCertificateSirs;
 
-function handleCertificate(event){
+// function handleUserCertificate(event){
+//     // alert("Insert your certificate!");
+//     var file = event.target.files[0];
+//     var reader = new FileReader();
 
+//     reader.onload = function(e) {
+//         var cert = reader.result;
+//         userCertificateSirs = cert;
+//     };  
+
+//     reader.readAsText(file);
+// }
+
+function handleDokuWikiCertificate(event){
+    // alert("Insert Doku Wiki's certificate!");
     var file = event.target.files[0];
     var reader = new FileReader();
 
     reader.onload = function(e) {
         var cert = reader.result;
-        certificateSirs = cert;
+        dokuWikiCertificateSirs = cert;
     };  
 
     reader.readAsText(file);
 }
 
 function handleKey(event){
-
     var file = event.target.files[0];
     var reader = new FileReader();
 
@@ -305,18 +319,52 @@ function handleKey(event){
 }
 
 function doSignPost(privkey){
+    var user = '';
+    jQuery.ajax({
+        url: "/../../sirs/common/dokuwikicertificaterequest.php",
+        type: "GET",
+        async: false,
+        data: { "user" : "user"},
+        success:function(data, text, jqXHR){
+            user = data;
+        }
+    });
 
     var pki = forge.pki;
     var privkey = pki.privateKeyFromPem(privkey);
-    // sign data with a private key
+
+    // sign origin with a private key
     var md = forge.md.sha1.create();
+    var origin = user.concat("->DokuWiki", jQuery.now());
+    alert(origin);
+    md.update(origin, 'utf8');
+    var signatureOrigin = privkey.sign(md);
+    var encodedSignatureOrigin = encodeURIComponent(forge.util.encode64(signatureOrigin));
+
+    // sign text data with a private key
+    var mdt = forge.md.sha1.create();
     var text = jQuery('#dw__editform > div.no > textarea[id=wiki__text]').val();
-    md.update(text, 'utf8');
-    var signature = privkey.sign(md);
-    var encodedSignature = encodeURIComponent(forge.util.encode64(signature));
+    mdt.update(text, 'utf8');
+    var signatureText = privkey.sign(mdt);
+    var encodedSignatureText = encodeURIComponent(forge.util.encode64(signatureText));
+
+    // cipher and text with doku wiki public key
+    var dokuCert = pki.certificateFromPem(dokuWikiCertificateSirs);
+    var publicKeyDoku = dokuCert.publicKey;
+    // create a byte buffer from utf8 bytes
+    // var encryptedText = publicKeyDoku.encrypt(text, 'RSAES-PKCS1-V1_5');
+    // alert(encryptedText);
+    // sign encryptedText with a private key
+    // md = forge.md.sha1.create();
+    // md.update(encryptedText, 'utf8');
+    // var signatureEncryptedText = privkey.sign(md);
+    // var encodedSignatureEncryptedText = encodeURIComponent(forge.util.encode64(signatureEncryptedText));
+   
     var allData = jQuery('#dw__editform').serialize();
+    // allData = allData.replace("wikitext=".concat(encodeURIComponent(text)), "wikitext=".concat(enc));
+
     var id = jQuery('#dw__editform > div.no > input[name=id]').val();
-    allData = allData.concat("&do[save]=Save&signature=", encodedSignature, "&certificate=", encodeURIComponent(certificateSirs));
+    allData = allData.concat("&do[save]=Save&origin=", origin ,"&signatureOrigin=", encodedSignatureOrigin,"&signatureText=", encodedSignatureText);
     jQuery.ajax(
         {
             url : "doku.php",
@@ -325,19 +373,19 @@ function doSignPost(privkey){
             success:function(data, textStatus, jqXHR){
                 window.onbeforeunload = '';
                 textChanged = false;
-                alert('successs');
                 window.location.href = "/doku.php?id=".concat(id);
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                alert('error');
+                alert(textStatus);
             }
         });
 }
 
 jQuery(function(){
     jQuery("body").append("<input type='file' style='display: none;' name='fileKey' id='fileKey'>");
-    jQuery("body").append("<input type='file' style='display: none;' name='fileCert' id='fileCert'>");
-    document.getElementById('fileCert').addEventListener('change', handleCertificate, false);
+    // jQuery("body").append("<input type='file' style='display: none;' name='fileUserCert' id='fileUserCert'>");
+    jQuery("body").append("<input type='file' style='display: none;' name='fileDokuWikiCert' id='fileDokuWikiCert'>");
+    // document.getElementById('fileUserCert').addEventListener('change', handleUserCertificate, false);
+    document.getElementById('fileDokuWikiCert').addEventListener('change', handleDokuWikiCertificate, false);
     document.getElementById('fileKey').addEventListener('change', handleKey, false);
 });
-

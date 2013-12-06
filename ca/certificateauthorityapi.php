@@ -57,9 +57,9 @@
 
 		$result = $x509->sign($issuer, $subject);
 
-		$x509->loadX509($result);
-		$x509->setExtension('id-ce-keyUsage', array('digitalSignature'));
-		$result = $x509->sign($issuer, $x509);
+		// $x509->loadX509($result);
+		// $x509->setExtension('id-ce-keyUsage', array('digitalSignature'));
+		// $result = $x509->sign($issuer, $x509);
 
 		$cert = $x509->saveX509($result);
 
@@ -138,6 +138,22 @@
 		readfile("certificates/$user/sirs-$user-certificate.pem");
 
 		exit();
+	}
+
+	if(!empty($_POST['getUserCert'])){
+		$user = $_POST['getUserCert'];
+		$certDir = "certificates/$user/sirs-$user-certificate.pem";
+		if(file_exists($certDir)){
+			// We'll be outputting a TXT
+			header('Content-type: application/txt');
+
+			// It will be called downloaded.pdf
+			header("Content-Disposition: attachment; filename=sirs-$user-certificate.pem");
+
+			readfile("certificates/$user/sirs-$user-certificate.pem");
+			
+			exit();
+		}
 	}
 
 ?>
