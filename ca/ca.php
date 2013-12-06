@@ -14,14 +14,25 @@
 
   	<div class="element">
 	  	<form enctype="multipart/form-data" method="post" action="/certificateauthorityapi.php"> 
-			<label for="user">Entity Name:</label>
-		  	<input type="text" name="userCSR" id="userCSR">
-		  	<br/><br/>
+	  		<label for="username">Entity Name:</label>
+  			<input type="text" name="username" id="username">
+	  		<br/><br/>
 			<label for="certificate">Certificate Signing Request:</label>
 			<input type="file" name="fileCSR" id="fileCSR">
 			<br/><br/>
-			<input type="submit" name="submitCSR" value="Get Certificate">
-			<input style="visibility: hidden;" type="submit" name="submitCSRText" value="Get Certificate"/>
+			<input type="submit" name="submitCSR" value="Generate Certificate">
+			<input style="visibility: hidden;" type="submit" name="submitCSRText" value="Generate Certificate"/>
+		</form>
+	</div>
+
+	<!-- GUC : Get User Certificate -->
+	<div class="element">
+	  	<form method="post" action="/certificateauthorityapi.php">
+	  		<label for="username">Entity Name:</label>
+  			<input type="text" name="username" id="username"> 
+	  		<br/><br/>
+			<label for="userCertificate">User Certificate Request</label>
+			<input type="submit" name="getUserCert" value="Get User Certificate">
 		</form>
 	</div>
 

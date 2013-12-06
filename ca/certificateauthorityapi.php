@@ -2,7 +2,8 @@
 
 	include('File/X509.php');
 	include('Crypt/RSA.php');
-
+	include('Math/BigInteger.php');
+	
 	function generateCASelfSignedCertificate(){
 		// create private key for CA cert
 		// (you should probably print it out if you want to reuse it)
@@ -100,7 +101,7 @@
 
 	if (!empty($_POST['submitCSR'])) {
 		$submitCSR = $_POST['submitCSR'];
-		$user = $_POST['userCSR'];
+		$user = $_POST['username'];
 		error_log($user);
 		if ($_FILES["fileCSR"]["error"] > 0){
 		  echo "Error: " . $_FILES["fileCSR"]["error"] . "<br>";
@@ -123,7 +124,7 @@
 
 	if (!empty($_POST['submitCSRText'])) {
 		$submitCSR = $_POST['submitCSRText'];
-		$user = $_POST['userCSR'];
+		$user = $_POST['username'];
 		$certRequest = $_POST['fileCSR'];
 
 	  	@mkdir("certificates/$user");
@@ -141,7 +142,7 @@
 	}
 
 	if(!empty($_POST['getUserCert'])){
-		$user = $_POST['getUserCert'];
+		$user = $_POST['username'];
 		$certDir = "certificates/$user/sirs-$user-certificate.pem";
 		if(file_exists($certDir)){
 			// We'll be outputting a TXT
@@ -151,7 +152,6 @@
 			header("Content-Disposition: attachment; filename=sirs-$user-certificate.pem");
 
 			readfile("certificates/$user/sirs-$user-certificate.pem");
-			
 			exit();
 		}
 	}

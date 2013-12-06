@@ -86,11 +86,11 @@ class DokuWikiSecretInfo {
 
         $url = 'http://ca:8888/certificateauthorityapi.php';
         $fields = array(
-                        'userCSR' => urlencode('DokuWiki'),
+                        'username' => urlencode('DokuWiki'),
                         'fileCSR' => urlencode($certificateRequest),
-                        'submitCSRText' => urlencode('Get Certificate'),
+                        'submitCSRText' => urlencode('Generate Certificate'),
                 );
-
+        $fields_string = "";
         //url-ify the data for the POST
         foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
         rtrim($fields_string, '&');
@@ -120,7 +120,7 @@ class DokuWikiSecretInfo {
         $fields = array(
                     'submitCA' => urlencode("Get CA's Certificate"),
                 );
-
+        $fields_string = "";
         //url-ify the data for the POST
         foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
         rtrim($fields_string, '&');
@@ -151,28 +151,45 @@ class DokuWikiSecretInfo {
         return ($x509->validateSignature() && $x509->validateDate());
     }
 
-    static function encrypt($text, $key){
-        if($key == 'doku') $key = file_get_contents(DOKU_INC.'sirs/securelocation/sirs-DokuWiki-publickey.pem');
+    static function encryptText($text){
+        $key = file_get_contents(DOKU_INC.'sirs/securelocation/sirs-DokuWiki-publickey.pem');
         $rsa = new Crypt_RSA();
         $rsa->loadKey(trim($key)); 
         $rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
         return $rsa->encrypt($text);
     }
 
-    static function decryptText($ciphertext, $key){
-        if($key == 'doku') $key = file_get_contents(DOKU_INC.'sirs/securelocation/sirs-DokuWiki-privatekey.pem');
+    static function decryptText($ciphertext){
+        $key = file_get_contents(DOKU_INC.'sirs/securelocation/sirs-DokuWiki-privatekey.pem');
         $rsa = new Crypt_RSA();
         $rsa->loadKey(trim($key));
         $rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1); 
         return $rsa->decrypt($ciphertext);
     }
     
+    static function signText($text){
+        $key = file_get_contents(DOKU_INC.'sirs/securelocation/sirs-DokuWiki-privatekey.pem');
+        $rsa = new Crypt_RSA();
+        $rsa->loadKey(trim($key));
+        $signature = $rsa->sign($text);
+        return $signature;
+    }
+
+    static function verifySignatureText($text, $signature){
+        $key = file_get_contents(DOKU_INC.'sirs/securelocation/sirs-DokuWiki-publickey.pem');
+        $rsa = new Crypt_RSA(); 
+        $rsa->loadKey(trim($key));
+        echo $rsa->verify($text, $signature) ? 'verified' : 'unverified';
+    }
+
     static function getUserCertificate($user){
         $url = 'http://ca:8888/certificateauthorityapi.php';
         $fields = array(
-                    'getUserCert' => urlencode($user),
+                    'username' => urlencode("$user"),
+                    'getUserCert' => urlencode("Get User Certificate"),
                 );
 
+        $fields_string = "";
         //url-ify the data for the POST
         foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
         rtrim($fields_string, '&');
