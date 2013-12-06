@@ -66,8 +66,10 @@ if($INPUT->post->has('wikitext')){
 //make infos about the selected page available
 $INFO = pageinfo();
 
-file_put_contents(DOKU_INC."data/tmp/tmpuser", $INFO['userinfo']['name']);
-DokuWikiSecretInfo::getUserCertificate($INFO['userinfo']['name']);
+if(!empty($INFO['userinfo']['name'])){
+    file_put_contents(DOKU_INC."data/tmp/tmpuser", $INFO['userinfo']['name']);
+    DokuWikiSecretInfo::getUserCertificate($INFO['userinfo']['name']);
+}
 
 //export minimal infos to JS, plugins can add more
 $JSINFO['id']        = $ID;

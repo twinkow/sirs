@@ -19,7 +19,7 @@
     if (window.toolbar != undefined) {
         window.toolbar[window.toolbar.length] = {
             "type":"Click", // we have a new type that links to the function
-            "title":"Hey Click me!",
+            "title":"Download Certificate",
             "icon":"../../images/open.png", 
         };
     }
