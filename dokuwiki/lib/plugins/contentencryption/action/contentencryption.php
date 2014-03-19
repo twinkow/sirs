@@ -68,8 +68,8 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
         $filenameWithPath = "$this->pageszippedpath/$filename";
 
         $client = S3Client::factory(array(
-            'key'      => 'AKIAIY7ZJJCCPV2MDTTQ',
-            'secret'   => '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',
+            'key'      => '',
+            'secret'   => '',
         ));
 
         $acl = 'private';
@@ -84,8 +84,8 @@ class action_plugin_contentencryption_contentencryption extends DokuWiki_Action_
 
         // Glacier connect
         $glacierClient = GlacierClient::factory(array(
-            'key'    => 'AKIAIY7ZJJCCPV2MDTTQ',
-            'secret' => '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',
+            'key'    => '',
+            'secret' => '',
             'region' => 'eu-west-1',
         ));
 
